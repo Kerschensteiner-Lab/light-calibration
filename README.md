@@ -19,19 +19,19 @@ Requires **Python 3.9+**. The run script creates a virtual environment and insta
 
 The app has three tabs:
 
-- **Calculator** — Enter power (nW), select a stimulus device and photoreceptor type, enter the stimulus area, and get the photoisomerization rate with interactive plots.
+- **Calculator** — Enter power (nW), select a stimulus device and photoreceptor type, enter the collecting area and stimulus spot area, and get the photoisomerization rate with interactive plots. Selecting a photoreceptor auto-populates its default collecting area.
 - **Import Stimulus** — Upload a CSV file (wavelength, intensity) to add a new stimulus device spectrum.
-- **Generate Photoreceptor** — Create a photoreceptor sensitivity spectrum from a peak wavelength using the Govardovskii et al. (2000) nomogram.
+- **Generate Photoreceptor** — Create a photoreceptor sensitivity spectrum from a peak wavelength using the Govardovskii et al. (2000) nomogram. Optionally specify a collecting area to save as the default.
 
 ## Included spectra
 
 ### Photoreceptors (11)
 
-| Species | Type | λ_max (nm) |
-|---------|------|-----------|
-| Mouse | Rod / M-cone / S-cone (UV) | 498 / 508 / 360 |
-| Primate | Rod / L-cone / M-cone / S-cone | 500 / 560 / 530 / 430 |
-| Fat-tailed dunnart | Rod / LWS / MWS / UVS | 512 / 535 / 509 / 363 |
+| Species | Type | λ_max (nm) | Collecting area (μm²) |
+|---------|------|-----------|----------------------|
+| Mouse | Rod / M-cone / S-cone (UV) | 498 / 508 / 360 | 0.5 / 0.2 / 0.2 |
+| Primate | Rod / L-cone / M-cone / S-cone | 500 / 560 / 530 / 430 | 1.0 / 0.37 / 0.37 / 0.37 |
+| Fat-tailed dunnart | Rod / LWS / MWS / UVS | 512 / 535 / 509 / 363 | 0.79 / 2.0 / 2.0 / 2.0 |
 
 ### Stimulus devices (14)
 
@@ -39,7 +39,7 @@ OLEDs (yOLED, wOLED, xOLED, color_XL_OLED), LCDs (bLCD, gLCD, rLCD, wLCD), LEDs 
 
 ## Adding and sharing spectra
 
-Spectra live in `spectra/stimuli/` and `spectra/photoreceptors/` as CSV files. To share a new spectrum with the team:
+Spectra live in `spectra/stimuli/` and `spectra/photoreceptors/` as CSV files. Default collecting areas are stored in `spectra/collecting_areas.json`. To share a new spectrum with the team:
 
 ```bash
 # After importing or generating via the web UI:
@@ -64,4 +64,5 @@ static/               CSS
 spectra/
   stimuli/            Stimulus device emission spectra (.csv)
   photoreceptors/     Photoreceptor sensitivity spectra (.csv)
+  collecting_areas.json  Default photoreceptor collecting areas (μm²)
 ```

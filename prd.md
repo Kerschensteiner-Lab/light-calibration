@@ -18,9 +18,9 @@ For each wavelength λ (nm):
     photon_energy(λ) = h·c / (λ × 1e-9)          [J/photon]
     spectral_power(λ) = P_total × S_norm(λ)        [W], where S_norm is emission spectrum normalized to sum to 1
     photon_flux(λ) = spectral_power(λ) / photon_energy(λ)   [photons/s]
-    photon_density(λ) = photon_flux(λ) / area       [photons/s/μm²]
+    photon_density(λ) = photon_flux(λ) / area_spot  [photons/s/μm²]
 
-Photoisomerization rate = Σ_λ [ photon_density(λ) × receptor_sensitivity(λ) ]
+Photoisomerization rate = A_collecting × Σ_λ [ photon_density(λ) × receptor_sensitivity(λ) ]
 ```
 
 Where:
@@ -29,7 +29,8 @@ Where:
 - `P_total` = measured power in watts (user enters nW, multiply by 1e-9)
 - `S_norm(λ)` = stimulus device emission spectrum, normalized so `Σ S_norm(λ) = 1`
 - `receptor_sensitivity(λ)` = photoreceptor quantal sensitivity (linear scale, not log)
-- `area` = stimulus spot area in μm²
+- `area_spot` = stimulus spot area in μm²
+- `A_collecting` = photoreceptor collecting area in μm² (effective photon-capture cross-section)
 
 ### Wavelength grid
 
@@ -76,6 +77,7 @@ This range covers UV through red, matching the most recent MATLAB version (`Back
 **Inputs:**
 - λ_max (nm): the wavelength of peak sensitivity.
 - A user-defined name for the spectrum (e.g., `"mouse_rod_498"`).
+- (Optional) Collecting area (μm²): if provided, saved as the default for this photoreceptor in `spectra/collecting_areas.json`.
 
 **Processing:**
 1. Compute the quantal sensitivity curve over the standard 200–720 nm grid using the **Govardovskii et al. (2000)** nomogram for visual pigments. This nomogram defines the α-band (main peak) and β-band (cis-peak) of the absorption spectrum as a function of λ_max:
@@ -130,8 +132,9 @@ This range covers UV through red, matching the most recent MATLAB version (`Back
 **Interface elements:**
 - **Numeric input: Power (nW)** — the photometer reading.
 - **Dropdown: Stimulus device** — populated from all `.csv` files in `spectra/stimuli/`. Display the file name (without extension) as the label.
-- **Dropdown: Photoreceptor type** — populated from all `.csv` files in `spectra/photoreceptors/`. Display the file name (without extension) as the label.
-- **Numeric input: Stimulus area (μm²)** — the illuminated area on the retina.
+- **Dropdown: Photoreceptor type** — populated from all `.csv` files in `spectra/photoreceptors/`. Display the file name (without extension) as the label. Selecting a photoreceptor auto-populates the collecting area field from defaults stored in `spectra/collecting_areas.json`.
+- **Numeric input: Collecting area (μm²)** — the effective photon-capture cross-section of the photoreceptor. Auto-populated from defaults but user-editable.
+- **Numeric input: Stimulus spot area (μm²)** — the total illuminated area on the retina.
 - **Output display: Photoisomerization rate** — result in isomerizations/photoreceptor/s.
 - **Plot area** — three vertically stacked subplots:
   1. Stimulus emission spectrum (normalized).
@@ -167,7 +170,8 @@ light_calibration/
 ├── prd.md                          # this document
 ├── spectra/
 │   ├── stimuli/                    # stimulus device emission spectra (.csv)
-│   └── photoreceptors/             # photoreceptor sensitivity spectra (.csv)
+│   ├── photoreceptors/             # photoreceptor sensitivity spectra (.csv)
+│   └── collecting_areas.json       # default photoreceptor collecting areas (μm²)
 ├── src/
 │   ├── spectrum_utils.py           # resampling, interpolation, file I/O
 │   ├── govardovskii.py             # Govardovskii nomogram implementation
@@ -199,6 +203,5 @@ light_calibration/
 ## Non-goals
 
 - NDF (neutral density filter) support — deliberately removed.
-- Multi-species management or species-specific metadata — spectra are just named files.
 - Batch processing of multiple measurements.
 - Deployment to a remote server — the web app runs locally only.
