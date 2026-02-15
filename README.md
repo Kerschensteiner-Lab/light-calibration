@@ -35,7 +35,7 @@ The app has three tabs:
 
 ### Stimulus devices (14)
 
-OLEDs (yOLED, wOLED, xOLED, color_XL_OLED), LCDs (bLCD, gLCD, rLCD, wLCD), LEDs (blue, green, red, uv_led), exciter, ekb-invivo-ephys.
+OLEDs (yOLED, wOLED, xOLED, color_XL_OLED), LCDs (bLCD, gLCD, rLCD, wLCD), LEDs (blue, green, red, uv), exciter, ekb-invivo-ephys.
 
 ## Adding and sharing spectra
 
