@@ -33,9 +33,9 @@ The app has three tabs:
 | Primate | Rod / L-cone / M-cone / S-cone | 500 / 560 / 530 / 430 |
 | Fat-tailed dunnart | Rod / LWS / MWS / UVS | 512 / 535 / 509 / 363 |
 
-### Stimulus devices (13)
+### Stimulus devices (14)
 
-OLEDs (yOLED, wOLED, xOLED, color_XL_OLED), LCDs (bLCD, gLCD, rLCD, wLCD), LEDs (blue, green, red, uv_led), exciter.
+OLEDs (yOLED, wOLED, xOLED, color_XL_OLED), LCDs (bLCD, gLCD, rLCD, wLCD), LEDs (blue, green, red, uv_led), exciter, ekb-invivo-ephys.
 
 ## Adding and sharing spectra
 
