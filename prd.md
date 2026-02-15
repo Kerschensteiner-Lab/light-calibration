@@ -166,7 +166,7 @@ The existing `.mat` and `.txt` spectrum files should be converted to the new `.c
 ## Project Structure
 
 ```
-light_calibration/
+light-calibration/
 ├── prd.md                          # this document
 ├── spectra/
 │   ├── stimuli/                    # stimulus device emission spectra (.csv)

@@ -5,8 +5,8 @@ Convert measured light power (nW) into photoisomerization rates (isomerizations/
 ## Quick start
 
 ```bash
-git clone <repo-url>
-cd light_calibration
+git clone https://github.com/Kerschensteiner-Lab/light-calibration
+cd light-calibration
 ./run.sh        # macOS / Linux
 run.bat          # Windows
 ```
