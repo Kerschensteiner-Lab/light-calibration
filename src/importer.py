@@ -56,6 +56,9 @@ def import_stimulus_spectrum(filepath, name):
             "Results may be unreliable for wavelengths outside the source range."
         )
 
+    # Baseline correction: subtract minimum so the floor is at zero
+    values = values - values.min()
+
     # Resample to standard grid
     new_wl, new_vals = resample_spectrum(wavelengths, values)
 
