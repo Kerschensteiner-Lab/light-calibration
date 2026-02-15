@@ -91,7 +91,7 @@ def migrate_stimuli():
         'gLCD.mat': 'gLCD',
         'wLCD.mat': 'wLCD',
         'color_XL_OLED.mat': 'color_XL_OLED',
-        'uLED.mat': 'uLED',
+        'uLED.mat': 'uv_led',
     }
 
     for filename, outname in mat_stimuli.items():
@@ -174,9 +174,7 @@ def migrate_stimuli():
         total = new_vals.sum()
         if total > 0:
             new_vals = new_vals / total
-        outpath = os.path.join(output_dir, 'uLED_sample.csv')
-        save_spectrum_csv(outpath, new_wl, new_vals, header="wavelength_nm,relative_intensity")
-        print(f"  spectrum062123_uv_led_sample.mat -> uLED_sample.csv")
+        # Note: uLED_sample spectrum has been removed from the project
 
 
 def main():
