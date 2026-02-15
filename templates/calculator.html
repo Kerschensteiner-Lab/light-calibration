@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% set active_page = "calculator" %}
+
+{% block title %}Calculator — Photoisomerization{% endblock %}
+
+{% block content %}
+<h1>Photoisomerization Rate Calculator</h1>
+
+<div class="form-group">
+    <label for="power">Power (nW)</label>
+    <div class="hint">Photometer reading in nanowatts</div>
+    <input type="number" id="power" step="any" min="0" placeholder="e.g. 5.0">
+</div>
+
+<div class="form-group">
+    <label for="stimulus">Stimulus Device</label>
+    <select id="stimulus">
+        <option value="">— select —</option>
+        {% for s in stimuli %}
+        <option value="{{ s }}">{{ s }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+<div class="form-group">
+    <label for="receptor">Photoreceptor Type</label>
+    <select id="receptor">
+        <option value="">— select —</option>
+        {% for p in photoreceptors %}
+        <option value="{{ p }}">{{ p }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+<div class="form-group">
+    <label for="area">Stimulus Area (μm²)</label>
+    <div class="hint">Illuminated area on the retina</div>
+    <input type="number" id="area" step="any" min="0" placeholder="e.g. 245025">
+</div>
+
+<button class="btn btn-primary" id="calculate-btn">Calculate</button>
+
+<div class="message error" id="error-msg"></div>
+
+<div class="result-box" id="result-box">
+    <span class="result-value" id="result-value"></span>
+    <span class="result-unit">isomerizations / photoreceptor / s</span>
+</div>
+
+<div class="plot-area">
+    <div class="plot-container" id="plot-stimulus" style="display:none;"></div>
+    <div class="plot-container" id="plot-receptor" style="display:none;"></div>
+    <div class="plot-container" id="plot-product" style="display:none;"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('calculate-btn').addEventListener('click', async () => {
+    const errorEl = document.getElementById('error-msg');
+    const resultBox = document.getElementById('result-box');
+    errorEl.classList.remove('visible');
+    resultBox.classList.remove('visible');
+
+    const power = parseFloat(document.getElementById('power').value);
+    const stimulus = document.getElementById('stimulus').value;
+    const receptor = document.getElementById('receptor').value;
+    const area = parseFloat(document.getElementById('area').value);
+
+    if (!stimulus || !receptor || isNaN(power) || isNaN(area)) {
+        errorEl.textContent = 'Please fill in all fields.';
+        errorEl.classList.add('visible');
+        return;
+    }
+
+    const btn = document.getElementById('calculate-btn');
+    btn.disabled = true;
+    btn.textContent = 'Calculating…';
+
+    try {
+        const resp = await fetch('/api/calculate', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                power_nw: power,
+                stimulus: stimulus,
+                receptor: receptor,
+                area_um2: area,
+            }),
+        });
+
+        const data = await resp.json();
+
+        if (!resp.ok) {
+            errorEl.textContent = data.error || 'Calculation failed.';
+            errorEl.classList.add('visible');
+            return;
+        }
+
+        // Display result
+        document.getElementById('result-value').textContent = data.rate.toExponential(4);
+        resultBox.classList.add('visible');
+
+        // Plot
+        const wl = data.stimulus_wavelengths;
+        const plotLayout = {
+            margin: {t: 30, b: 40, l: 60, r: 20},
+            height: 200,
+            xaxis: {title: 'Wavelength (nm)'},
+        };
+
+        const plotStim = document.getElementById('plot-stimulus');
+        plotStim.style.display = 'block';
+        Plotly.newPlot(plotStim, [{
+            x: wl, y: data.stimulus_spectrum, type: 'scatter', mode: 'lines',
+            line: {color: '#3498db'},
+        }], {...plotLayout, yaxis: {title: 'Normalized emission'}}, {responsive: true});
+
+        const plotRec = document.getElementById('plot-receptor');
+        plotRec.style.display = 'block';
+        Plotly.newPlot(plotRec, [{
+            x: data.receptor_wavelengths, y: data.receptor_spectrum, type: 'scatter', mode: 'lines',
+            line: {color: '#e74c3c'},
+        }], {...plotLayout, yaxis: {title: 'Sensitivity'}}, {responsive: true});
+
+        const plotProd = document.getElementById('plot-product');
+        plotProd.style.display = 'block';
+        Plotly.newPlot(plotProd, [{
+            x: wl, y: data.product, type: 'scatter', mode: 'lines',
+            fill: 'tozeroy', line: {color: '#2c3e50'},
+        }], {...plotLayout, yaxis: {title: 'Emission × Sensitivity'}}, {responsive: true});
+
+    } catch (err) {
+        errorEl.textContent = 'Request failed: ' + err.message;
+        errorEl.classList.add('visible');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Calculate';
+    }
+});
+</script>
+{% endblock %}

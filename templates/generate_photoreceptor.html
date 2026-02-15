@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% set active_page = "generate" %}
+
+{% block title %}Generate Photoreceptor — Photoisomerization{% endblock %}
+
+{% block content %}
+<h1>Generate Photoreceptor Spectrum</h1>
+
+<p style="margin-bottom:1.5rem; color:#555;">
+    Compute a quantal sensitivity spectrum from a peak wavelength (λ<sub>max</sub>)
+    using the Govardovskii et al. (2000) nomogram.
+</p>
+
+<div class="form-group">
+    <label for="lambda-max">λ<sub>max</sub> (nm)</label>
+    <div class="hint">Wavelength of peak sensitivity, 200–720 nm</div>
+    <input type="number" id="lambda-max" step="any" min="200" max="720" placeholder="e.g. 500">
+</div>
+
+<div class="form-group">
+    <label for="receptor-name">Spectrum Name</label>
+    <div class="hint">Used as the filename (no spaces or special characters)</div>
+    <input type="text" id="receptor-name" placeholder="e.g. mouse_rod_498" pattern="[A-Za-z0-9_\-]+" required>
+</div>
+
+<button class="btn btn-primary" id="generate-btn">Generate & Save</button>
+
+<div class="message success" id="success-msg"></div>
+<div class="message error" id="error-msg"></div>
+
+<div class="plot-area">
+    <div class="plot-container" id="plot-generated" style="display:none;"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('generate-btn').addEventListener('click', async () => {
+    const successEl = document.getElementById('success-msg');
+    const errorEl = document.getElementById('error-msg');
+    successEl.classList.remove('visible');
+    errorEl.classList.remove('visible');
+    document.getElementById('plot-generated').style.display = 'none';
+
+    const lambdaMax = parseFloat(document.getElementById('lambda-max').value);
+    const name = document.getElementById('receptor-name').value.trim();
+
+    if (isNaN(lambdaMax) || !name) {
+        errorEl.textContent = 'Please provide both λ_max and a name.';
+        errorEl.classList.add('visible');
+        return;
+    }
+
+    const btn = document.getElementById('generate-btn');
+    btn.disabled = true;
+    btn.textContent = 'Generating…';
+
+    try {
+        const resp = await fetch('/api/generate', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({lambda_max: lambdaMax, name: name}),
+        });
+
+        const data = await resp.json();
+
+        if (!resp.ok) {
+            errorEl.textContent = data.error || 'Generation failed.';
+            errorEl.classList.add('visible');
+            return;
+        }
+
+        successEl.textContent = data.message;
+        successEl.classList.add('visible');
+
+        // Plot
+        const plotEl = document.getElementById('plot-generated');
+        plotEl.style.display = 'block';
+        Plotly.newPlot(plotEl, [{
+            x: data.wavelengths, y: data.sensitivity,
+            type: 'scatter', mode: 'lines', line: {color: '#e74c3c'},
+        }], {
+            margin: {t: 30, b: 40, l: 60, r: 20},
+            height: 250,
+            xaxis: {title: 'Wavelength (nm)'},
+            yaxis: {title: 'Quantal sensitivity'},
+        }, {responsive: true});
+
+    } catch (err) {
+        errorEl.textContent = 'Request failed: ' + err.message;
+        errorEl.classList.add('visible');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Generate & Save';
+    }
+});
+</script>
+{% endblock %}

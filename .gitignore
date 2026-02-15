@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+
+# Legacy MATLAB / data files (kept locally, not in repo)
+*.mat
+*.asv
+*.xls
+*.xlsx
+brightgreen
+light_calibration_prompt.txt
+
+# Legacy spectrometer text data (specific filenames to avoid catching .txt code files)
+BLUE.TXT
+GREEN.TXT
+RED.TXT
+DARK.TXT
+exciter.txt
+
+# Legacy MATLAB scripts
+BackgroundIntensity*.m
+InterpolateNByTwo.m
+
+# OS
+.DS_Store
+
+# IDE / tool config
+.claude/

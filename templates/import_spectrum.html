@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% set active_page = "import" %}
+
+{% block title %}Import Stimulus — Photoisomerization{% endblock %}
+
+{% block content %}
+<h1>Import Stimulus Spectrum</h1>
+
+<p style="margin-bottom:1.5rem; color:#555;">
+    Upload a CSV file with two columns (wavelength in nm, relative intensity).
+    The spectrum will be resampled to the standard 200–720 nm grid and normalized.
+</p>
+
+<form id="import-form" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="spectrum-name">Spectrum Name</label>
+        <div class="hint">Used as the filename (no spaces or special characters)</div>
+        <input type="text" id="spectrum-name" name="name" placeholder="e.g. blue_led_2024" pattern="[A-Za-z0-9_\-]+" required>
+    </div>
+
+    <div class="form-group">
+        <label for="spectrum-file">CSV File</label>
+        <input type="file" id="spectrum-file" name="file" accept=".csv,.txt,.tsv" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary" id="import-btn">Import</button>
+</form>
+
+<div class="message success" id="success-msg"></div>
+<div class="message warning" id="warning-msg"></div>
+<div class="message error" id="error-msg"></div>
+
+<div class="plot-area">
+    <div class="plot-container" id="plot-imported" style="display:none;"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('import-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const successEl = document.getElementById('success-msg');
+    const warningEl = document.getElementById('warning-msg');
+    const errorEl = document.getElementById('error-msg');
+    successEl.classList.remove('visible');
+    warningEl.classList.remove('visible');
+    errorEl.classList.remove('visible');
+    document.getElementById('plot-imported').style.display = 'none';
+
+    const name = document.getElementById('spectrum-name').value.trim();
+    const fileInput = document.getElementById('spectrum-file');
+
+    if (!name || !fileInput.files.length) {
+        errorEl.textContent = 'Please provide a name and select a file.';
+        errorEl.classList.add('visible');
+        return;
+    }
+
+    const btn = document.getElementById('import-btn');
+    btn.disabled = true;
+    btn.textContent = 'Importing…';
+
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('file', fileInput.files[0]);
+
+    try {
+        const resp = await fetch('/api/import', {
+            method: 'POST',
+            body: formData,
+        });
+
+        const data = await resp.json();
+
+        if (!resp.ok) {
+            errorEl.textContent = data.error || 'Import failed.';
+            errorEl.classList.add('visible');
+            return;
+        }
+
+        successEl.textContent = data.message;
+        successEl.classList.add('visible');
+
+        if (data.warnings && data.warnings.length) {
+            warningEl.textContent = data.warnings.join(' ');
+            warningEl.classList.add('visible');
+        }
+
+        // Fetch the saved spectrum and plot it
+        const specResp = await fetch('/api/spectrum/stimuli/' + encodeURIComponent(name));
+        if (specResp.ok) {
+            const specData = await specResp.json();
+            const plotEl = document.getElementById('plot-imported');
+            plotEl.style.display = 'block';
+            Plotly.newPlot(plotEl, [{
+                x: specData.wavelengths, y: specData.values,
+                type: 'scatter', mode: 'lines', line: {color: '#3498db'},
+            }], {
+                margin: {t: 30, b: 40, l: 60, r: 20},
+                height: 250,
+                xaxis: {title: 'Wavelength (nm)'},
+                yaxis: {title: 'Normalized intensity'},
+            }, {responsive: true});
+        }
+
+    } catch (err) {
+        errorEl.textContent = 'Request failed: ' + err.message;
+        errorEl.classList.add('visible');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Import';
+    }
+});
+</script>
+{% endblock %}
