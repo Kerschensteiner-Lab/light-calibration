@@ -10,7 +10,8 @@ C = 3e8        # Speed of light (m/s)
 
 
 def compute_photoisomerization_rate(power_nw, stimulus_wavelengths, stimulus_spectrum,
-                                     receptor_wavelengths, receptor_spectrum, area_um2):
+                                     receptor_wavelengths, receptor_spectrum, area_um2,
+                                     collecting_area_um2):
     """Compute photoisomerization rate.
 
     Parameters
@@ -27,6 +28,8 @@ def compute_photoisomerization_rate(power_nw, stimulus_wavelengths, stimulus_spe
         Photoreceptor quantal sensitivity (linear scale).
     area_um2 : float
         Stimulus spot area in μm².
+    collecting_area_um2 : float
+        Photoreceptor collecting area in μm².
 
     Returns
     -------
@@ -57,13 +60,13 @@ def compute_photoisomerization_rate(power_nw, stimulus_wavelengths, stimulus_spe
     # Photon density: photons/s/μm²
     photon_density = photon_flux / area_um2
 
-    # Integrate: sum of photon_density × receptor_sensitivity
-    rate = np.sum(photon_density * receptor_spectrum)
+    # Integrate: sum of photon_density × receptor_sensitivity × collecting_area
+    rate = np.sum(photon_density * receptor_spectrum) * collecting_area_um2
 
     return rate
 
 
-def compute_from_names(power_nw, stimulus_name, receptor_name, area_um2):
+def compute_from_names(power_nw, stimulus_name, receptor_name, area_um2, collecting_area_um2):
     """Compute photoisomerization rate from spectrum file names.
 
     Parameters
@@ -76,6 +79,8 @@ def compute_from_names(power_nw, stimulus_name, receptor_name, area_um2):
         Name of photoreceptor spectrum file (without .csv extension).
     area_um2 : float
         Stimulus spot area in μm².
+    collecting_area_um2 : float
+        Photoreceptor collecting area in μm².
 
     Returns
     -------
@@ -91,7 +96,8 @@ def compute_from_names(power_nw, stimulus_name, receptor_name, area_um2):
     rec_wl, rec_vals = load_spectrum_csv(rec_path)
 
     rate = compute_photoisomerization_rate(power_nw, stim_wl, stim_vals,
-                                            rec_wl, rec_vals, area_um2)
+                                            rec_wl, rec_vals, area_um2,
+                                            collecting_area_um2)
 
     # Normalized stimulus for plotting
     stim_norm = stim_vals / stim_vals.sum() if stim_vals.sum() > 0 else stim_vals

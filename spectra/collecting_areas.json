@@ -1,0 +1,13 @@
+{
+    "mouse_rod": 0.5,
+    "mouse_mcone": 0.2,
+    "mouse_scone": 0.2,
+    "primate_rod": 1.0,
+    "primate_lcone": 0.37,
+    "primate_mcone": 0.37,
+    "primate_scone": 0.37,
+    "dunnart_rod": 0.79,
+    "dunnart_lws": 2.0,
+    "dunnart_mws": 2.0,
+    "dunnart_uvs": 2.0
+}

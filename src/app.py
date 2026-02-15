@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.spectrum_utils import (
     list_spectra, get_spectra_dir, load_spectrum_csv, save_spectrum_csv,
-    standard_wavelengths,
+    standard_wavelengths, load_collecting_areas, save_collecting_area,
 )
 from src.calculator import compute_from_names
 from src.govardovskii import govardovskii_nomogram
@@ -32,7 +32,10 @@ app = Flask(
 def calculator_page():
     stimuli = list_spectra(get_spectra_dir('stimuli'))
     photoreceptors = list_spectra(get_spectra_dir('photoreceptors'))
-    return render_template('calculator.html', stimuli=stimuli, photoreceptors=photoreceptors)
+    collecting_areas = load_collecting_areas()
+    return render_template('calculator.html', stimuli=stimuli,
+                           photoreceptors=photoreceptors,
+                           collecting_areas=collecting_areas)
 
 
 @app.route('/import')
@@ -56,13 +59,17 @@ def api_calculate():
         stimulus = data['stimulus']
         receptor = data['receptor']
         area_um2 = float(data['area_um2'])
+        collecting_area_um2 = float(data['collecting_area_um2'])
 
         if power_nw <= 0:
             return jsonify(error="Power must be positive."), 400
         if area_um2 <= 0:
-            return jsonify(error="Area must be positive."), 400
+            return jsonify(error="Stimulus area must be positive."), 400
+        if collecting_area_um2 <= 0:
+            return jsonify(error="Collecting area must be positive."), 400
 
-        result = compute_from_names(power_nw, stimulus, receptor, area_um2)
+        result = compute_from_names(power_nw, stimulus, receptor, area_um2,
+                                     collecting_area_um2)
         return jsonify(result)
 
     except (KeyError, ValueError, TypeError) as e:
@@ -130,6 +137,7 @@ def api_generate_photoreceptor():
         data = request.get_json()
         lambda_max = float(data['lambda_max'])
         name = data.get('name', '').strip()
+        collecting_area = data.get('collecting_area')
 
         if not name:
             return jsonify(error="Spectrum name is required."), 400
@@ -140,6 +148,9 @@ def api_generate_photoreceptor():
         output_path = os.path.join(output_dir, name + '.csv')
         save_spectrum_csv(output_path, wavelengths, sensitivity,
                           header="wavelength_nm,sensitivity")
+
+        if collecting_area is not None:
+            save_collecting_area(name, float(collecting_area))
 
         return jsonify(
             message=f"Photoreceptor spectrum '{name}' saved successfully.",

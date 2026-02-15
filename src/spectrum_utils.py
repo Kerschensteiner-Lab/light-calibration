@@ -1,5 +1,6 @@
 """Spectrum resampling, interpolation, and file I/O utilities."""
 
+import json
 import os
 import numpy as np
 from scipy.interpolate import interp1d
@@ -111,3 +112,47 @@ def get_spectra_dir(kind):
     """
     base = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'spectra')
     return os.path.join(base, kind)
+
+
+def _collecting_areas_path():
+    """Return the path to the collecting_areas.json file."""
+    base = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'spectra')
+    return os.path.join(base, 'collecting_areas.json')
+
+
+def load_collecting_areas():
+    """Load photoreceptor collecting areas from JSON.
+
+    Returns
+    -------
+    areas : dict
+        Mapping of photoreceptor name to collecting area in um^2.
+        Empty dict if the file does not exist.
+    """
+    path = _collecting_areas_path()
+    if not os.path.isfile(path):
+        return {}
+    with open(path, 'r') as f:
+        return json.load(f)
+
+
+def save_collecting_area(name, area_um2):
+    """Save or update a single photoreceptor's collecting area.
+
+    Parameters
+    ----------
+    name : str
+        Photoreceptor spectrum name (without .csv extension).
+    area_um2 : float
+        Collecting area in um^2.
+    """
+    path = _collecting_areas_path()
+    if os.path.isfile(path):
+        with open(path, 'r') as f:
+            data = json.load(f)
+    else:
+        data = {}
+    data[name] = area_um2
+    with open(path, 'w') as f:
+        json.dump(data, f, indent=4)
+        f.write('\n')

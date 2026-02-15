@@ -33,8 +33,14 @@
 </div>
 
 <div class="form-group">
-    <label for="area">Stimulus Area (μm²)</label>
-    <div class="hint">Illuminated area on the retina</div>
+    <label for="collecting-area">Collecting Area (μm²)</label>
+    <div class="hint">Effective photon-capture cross-section of the photoreceptor</div>
+    <input type="number" id="collecting-area" step="any" min="0" placeholder="e.g. 1.0">
+</div>
+
+<div class="form-group">
+    <label for="area">Stimulus Spot Area (μm²)</label>
+    <div class="hint">Total illuminated area on the retina</div>
     <input type="number" id="area" step="any" min="0" placeholder="e.g. 245025">
 </div>
 
@@ -56,6 +62,18 @@
 
 {% block scripts %}
 <script>
+const COLLECTING_AREAS = {{ collecting_areas | tojson }};
+
+document.getElementById('receptor').addEventListener('change', function() {
+    const receptor = this.value;
+    const input = document.getElementById('collecting-area');
+    if (receptor && COLLECTING_AREAS[receptor] !== undefined) {
+        input.value = COLLECTING_AREAS[receptor];
+    } else {
+        input.value = '';
+    }
+});
+
 document.getElementById('calculate-btn').addEventListener('click', async () => {
     const errorEl = document.getElementById('error-msg');
     const resultBox = document.getElementById('result-box');
@@ -65,9 +83,10 @@ document.getElementById('calculate-btn').addEventListener('click', async () => {
     const power = parseFloat(document.getElementById('power').value);
     const stimulus = document.getElementById('stimulus').value;
     const receptor = document.getElementById('receptor').value;
+    const collectingArea = parseFloat(document.getElementById('collecting-area').value);
     const area = parseFloat(document.getElementById('area').value);
 
-    if (!stimulus || !receptor || isNaN(power) || isNaN(area)) {
+    if (!stimulus || !receptor || isNaN(power) || isNaN(collectingArea) || isNaN(area)) {
         errorEl.textContent = 'Please fill in all fields.';
         errorEl.classList.add('visible');
         return;
@@ -85,6 +104,7 @@ document.getElementById('calculate-btn').addEventListener('click', async () => {
                 power_nw: power,
                 stimulus: stimulus,
                 receptor: receptor,
+                collecting_area_um2: collectingArea,
                 area_um2: area,
             }),
         });

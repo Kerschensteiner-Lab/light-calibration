@@ -23,6 +23,12 @@
     <input type="text" id="receptor-name" placeholder="e.g. mouse_rod_498" pattern="[A-Za-z0-9_\-]+" required>
 </div>
 
+<div class="form-group">
+    <label for="collecting-area">Collecting Area (μm²) <span style="color:#999; font-weight:normal;">(optional)</span></label>
+    <div class="hint">Effective cross-section for photon capture; saved as the default for this photoreceptor</div>
+    <input type="number" id="collecting-area" step="any" min="0" placeholder="e.g. 1.0">
+</div>
+
 <button class="btn btn-primary" id="generate-btn">Generate & Save</button>
 
 <div class="message success" id="success-msg"></div>
@@ -44,6 +50,8 @@ document.getElementById('generate-btn').addEventListener('click', async () => {
 
     const lambdaMax = parseFloat(document.getElementById('lambda-max').value);
     const name = document.getElementById('receptor-name').value.trim();
+    const collectingAreaStr = document.getElementById('collecting-area').value.trim();
+    const collectingArea = collectingAreaStr ? parseFloat(collectingAreaStr) : null;
 
     if (isNaN(lambdaMax) || !name) {
         errorEl.textContent = 'Please provide both λ_max and a name.';
@@ -59,7 +67,7 @@ document.getElementById('generate-btn').addEventListener('click', async () => {
         const resp = await fetch('/api/generate', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({lambda_max: lambdaMax, name: name}),
+            body: JSON.stringify({lambda_max: lambdaMax, name: name, collecting_area: collectingArea}),
         });
 
         const data = await resp.json();
