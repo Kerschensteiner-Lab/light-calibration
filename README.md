@@ -2,6 +2,23 @@
 
 Convert measured light power (nW) into photoisomerization rates (isomerizations/photoreceptor/s) for different photoreceptor types and stimulus devices.
 
+## Prerequisites
+
+Before starting, you'll need to have **git** installed to clone this repository.
+
+### Installing Git
+
+**macOS:**
+- Install via Homebrew: `brew install git`
+- Or download from [git-scm.com](https://git-scm.com/download/mac)
+- Or install Xcode Command Line Tools: `xcode-select --install`
+
+**Windows:**
+- Download the installer from [git-scm.com](https://git-scm.com/download/win)
+- Run the installer and follow the setup wizard
+
+To verify git is installed, run: `git --version`
+
 ## Quick start
 
 ```bash
