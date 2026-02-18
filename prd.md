@@ -56,10 +56,11 @@ This range covers UV through red, matching the most recent MATLAB version (`Back
 
 **Processing:**
 1. Load the CSV (handle comma or tab delimiters; skip header rows if detected).
-2. Linearly interpolate the data onto the standard 200–720 nm, 1 nm grid.
-3. For wavelengths outside the source data range, set intensity to 0 (no extrapolation).
-4. Normalize the resampled spectrum so values sum to 1.
-5. Save as a `.csv` file with two columns (`wavelength_nm`, `relative_intensity`) in a designated `spectra/stimuli/` directory.
+2. Apply baseline correction by subtracting the minimum value so the floor is at zero.
+3. Linearly interpolate the data onto the standard 200–720 nm, 1 nm grid.
+4. For wavelengths outside the source data range, set intensity to 0 (no extrapolation).
+5. Normalize the resampled spectrum so values sum to 1.
+6. Save as a `.csv` file with two columns (`wavelength_nm`, `relative_intensity`) in a designated `spectra/stimuli/` directory.
 
 **Output:** A CSV file at `spectra/stimuli/<user_defined_name>.csv`.
 
@@ -127,16 +128,16 @@ This range covers UV through red, matching the most recent MATLAB version (`Back
 
 **Purpose:** Compute photoisomerization rate from user inputs via a web-based interface.
 
-**Technology:** Flask (Python) backend serving an HTML/JavaScript frontend. The app runs locally (`localhost`) and is launched from the command line.
+**Technology:** Flask (Python) backend serving an HTML/JavaScript frontend with Plotly.js for interactive plotting. The app runs locally at `localhost:5050` and is launched from the command line.
 
 **Interface elements:**
 - **Numeric input: Power (nW)** — the photometer reading.
 - **Dropdown: Stimulus device** — populated from all `.csv` files in `spectra/stimuli/`. Display the file name (without extension) as the label.
-- **Dropdown: Photoreceptor type** — populated from all `.csv` files in `spectra/photoreceptors/`. Display the file name (without extension) as the label. Selecting a photoreceptor auto-populates the collecting area field from defaults stored in `spectra/collecting_areas.json`.
-- **Numeric input: Collecting area (μm²)** — the effective photon-capture cross-section of the photoreceptor. Auto-populated from defaults but user-editable.
-- **Numeric input: Stimulus spot area (μm²)** — the total illuminated area on the retina.
+- **Dropdown: Photoreceptor type** — populated from all `.csv` files in `spectra/photoreceptors/`. Display the file name (without extension) as the label. Selecting a photoreceptor auto-populates the collecting area field from defaults stored in `spectra/collecting_areas.json` (if a default exists for that photoreceptor).
+- **Numeric input: Collecting area (μm²)** — the effective photon-capture cross-section of the photoreceptor. Auto-populated from defaults (when available) but user-editable.
+- **Numeric input: Stimulus spot area (μm²)** — the total illuminated area on the retina (default: 100,000,000 μm² = 1 cm²).
 - **Output display: Photoisomerization rate** — result in isomerizations/photoreceptor/s.
-- **Plot area** — three vertically stacked subplots:
+- **Plot area** — three interactive Plotly plots displayed vertically:
   1. Stimulus emission spectrum (normalized).
   2. Photoreceptor sensitivity spectrum.
   3. Their product (the effective spectrum contributing to photoisomerizations).
@@ -144,22 +145,30 @@ This range covers UV through red, matching the most recent MATLAB version (`Back
 **Behavior:**
 - The result and plots update when the user clicks a "Calculate" button.
 - Dropdowns are populated from the file system on page load (so newly imported spectra appear without restarting the server).
-- The spectrum importer (Component 1) and photoreceptor generator (Component 2) are also accessible as pages/tabs in the same web app, so all three tools share a single interface.
+- The spectrum importer (Component 1) and photoreceptor generator (Component 2) are also accessible as navigation tabs in the same web app, so all three tools share a single interface.
 
 **Web app structure:**
 - **Backend:** Flask app with API routes for calculation, spectrum listing, file upload/import, and photoreceptor generation.
-- **Frontend:** HTML pages with JavaScript for form handling and plot rendering (using a JS charting library such as Plotly.js, or server-rendered matplotlib figures returned as images).
-- The app opens in the user's default browser when launched.
+- **Frontend:** HTML pages with JavaScript for form handling and interactive plot rendering using Plotly.js.
+- The app automatically opens in the user's default browser when launched.
 
 ---
 
-## Data Migration
+## Included Spectra
 
-The existing `.mat` and `.txt` spectrum files should be converted to the new `.csv` format and placed in the appropriate directories. Provide a one-time migration script (`migrate_legacy_spectra.py`) that:
+The repository includes pre-converted spectrum files ready for use:
 
-1. Reads all photoreceptor `.mat` files (`macaque-rod-spectra.mat`, `long_cone_spec.mat`, `medium_cone_spec.mat`, `short_cone_spec.mat`, `uv_cone.mat`), converts log-scale values to linear, resamples to the standard grid, and saves to `spectra/photoreceptors/`.
-2. Reads all stimulus device `.mat` and `.txt` files, resamples to the standard grid, normalizes, and saves to `spectra/stimuli/`.
-3. Subtracts dark spectrum (`DARK.TXT`) from the raw LED `.txt` spectra (BLUE, GREEN, RED) before resampling, matching the existing MATLAB behavior.
+### Photoreceptor spectra (11)
+- **Mouse:** `mouse_rod` (498 nm), `mouse_mcone` (508 nm), `mouse_scone` (370 nm)
+- **Primate:** `primate_rod` (500 nm), `primate_lcone` (560 nm), `primate_mcone` (530 nm), `primate_scone` (430 nm)
+- **Fat-tailed dunnart:** `dunnart_rod` (512 nm), `dunnart_lws` (535 nm), `dunnart_mws` (509 nm), `dunnart_uvs` (373 nm)
+
+### Stimulus device spectra (8)
+- **OLEDs:** `oled_white`, `oled_yellow`, `oled_color`
+- **LightCrafter:** `lightCrafter_2p_uv`, `lightCrafter_2p_green`, `lightCrafter_2p_red`, `lightCrafter_invivo_all`
+- **Other:** `halogen_2pOly`
+
+All spectra are stored as CSV files in `spectra/photoreceptors/` and `spectra/stimuli/` respectively. Default collecting areas for photoreceptors are defined in `spectra/collecting_areas.json`.
 
 ---
 
@@ -183,8 +192,8 @@ light-calibration/
 │   ├── calculator.html             # photoisomerization calculator page
 │   ├── import_spectrum.html        # stimulus spectrum importer page
 │   └── generate_photoreceptor.html # photoreceptor spectrum generator page
-├── static/                         # CSS, JS assets
-├── migrate_legacy_spectra.py       # one-time migration of .mat/.txt files
+├── static/
+│   └── style.css                   # CSS styling
 └── requirements.txt                # Python dependencies
 ```
 
@@ -192,11 +201,11 @@ light-calibration/
 
 ## Dependencies
 
-- **numpy** — array operations, interpolation
-- **scipy** — `scipy.io.loadmat` (for migration script only), `scipy.interpolate.interp1d`
-- **matplotlib** — server-side plot rendering (returned as images to the browser)
-- **flask** — web application framework
-- **pandas** — CSV reading (optional; can use numpy instead)
+- **numpy** (≥1.24) — array operations, interpolation
+- **scipy** (≥1.10) — `scipy.interpolate.interp1d` for spectrum resampling
+- **matplotlib** (≥3.7) — available for backend use (plotting is done client-side with Plotly.js)
+- **flask** (≥3.0) — web application framework
+- **openpyxl** (≥3.1) — included as a dependency (not currently used by the application)
 
 ---
 
@@ -205,3 +214,4 @@ light-calibration/
 - NDF (neutral density filter) support — deliberately removed.
 - Batch processing of multiple measurements.
 - Deployment to a remote server — the web app runs locally only.
+- Migration of legacy `.mat` and `.txt` files — existing spectra have already been converted and are included in the repository.
