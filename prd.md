@@ -205,7 +205,7 @@ light-calibration/
 - **scipy** (≥1.10) — `scipy.interpolate.interp1d` for spectrum resampling
 - **matplotlib** (≥3.7) — available for backend use (plotting is done client-side with Plotly.js)
 - **flask** (≥3.0) — web application framework
-- **openpyxl** (≥3.1) — Excel file support (for potential future extensions)
+- **openpyxl** (≥3.1) — included as a dependency (not currently used by the application)
 
 ---
 
