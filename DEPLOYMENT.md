@@ -114,7 +114,7 @@ gcloud run deploy light-calibration \
 
 ### Option 4: Heroku
 
-Heroku is a popular platform with a free tier (requires credit card verification).
+Heroku is a popular platform (starting at $5/month for Eco dynos).
 
 1. **Install the Heroku CLI**:
    ```bash
@@ -244,7 +244,7 @@ The app will automatically detect it's running locally and use `localhost:5050`.
 
 - **Render.com**: Free tier available (limited resources, sleeps after inactivity)
 - **Fly.io**: Free tier includes 3 shared-cpu VMs with 256MB RAM each
-- **Heroku**: Free tier available (requires credit card, sleeps after 30 min inactivity)
+- **Heroku**: Starting at $5/month for Eco dynos (sleeps after 30 min inactivity), $7/month for Basic (no sleeping)
 - **Google Cloud Run**: Pay-per-use, ~$5-10/month for moderate usage
 - **Self-hosted Docker**: Cost of your server/VPS
 
