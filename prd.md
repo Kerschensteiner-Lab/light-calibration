@@ -159,9 +159,9 @@ This range covers UV through red, matching the most recent MATLAB version (`Back
 The repository includes pre-converted spectrum files ready for use:
 
 ### Photoreceptor spectra (11)
-- **Mouse:** `mouse_rod` (498 nm), `mouse_mcone` (508 nm), `mouse_scone` (360 nm)
+- **Mouse:** `mouse_rod` (498 nm), `mouse_mcone` (508 nm), `mouse_scone` (370 nm)
 - **Primate:** `primate_rod` (500 nm), `primate_lcone` (560 nm), `primate_mcone` (530 nm), `primate_scone` (430 nm)
-- **Fat-tailed dunnart:** `dunnart_rod` (512 nm), `dunnart_lws` (535 nm), `dunnart_mws` (509 nm), `dunnart_uvs` (363 nm)
+- **Fat-tailed dunnart:** `dunnart_rod` (512 nm), `dunnart_lws` (535 nm), `dunnart_mws` (509 nm), `dunnart_uvs` (373 nm)
 
 ### Stimulus device spectra (8)
 - **OLEDs:** `oled_white`, `oled_yellow`, `oled_color`
