@@ -4,6 +4,8 @@ Convert measured light power (nW) into photoisomerization rates (isomerizations/
 
 ## Quick start
 
+### Run locally
+
 ```bash
 git clone https://github.com/Kerschensteiner-Lab/light-calibration
 cd light-calibration
@@ -14,6 +16,10 @@ run.bat          # Windows
 The app opens in your browser at **http://localhost:5050**.
 
 Requires **Python 3.9+**. The run script creates a virtual environment and installs dependencies automatically.
+
+### Deploy as a website
+
+To make the calculator accessible as a public website, see **[DEPLOYMENT.md](DEPLOYMENT.md)** for detailed instructions on deploying to platforms like Render.com, Fly.io, Heroku, or Docker.
 
 ## What it does
 

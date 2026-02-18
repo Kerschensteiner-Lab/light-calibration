@@ -166,11 +166,24 @@ def api_generate_photoreceptor():
 # ── Entry point ──────────────────────────────────────────────────────────────
 
 def main():
-    port = 5050  # Avoid port 5000 which is used by AirPlay on macOS
-    # Open browser after a short delay to let the server start
-    threading.Timer(1.0, lambda: webbrowser.open(f'http://localhost:{port}')).start()
-    print(f"Starting Photoisomerization Rate Calculator at http://localhost:{port}")
-    app.run(host='localhost', port=port, debug=False)
+    # Support both local development and production deployment
+    # In production, PORT environment variable will be set
+    port = int(os.environ.get('PORT', 5050))
+    
+    # Detect if running in production mode
+    is_production = os.environ.get('FLASK_ENV') == 'production' or os.environ.get('PORT')
+    
+    if is_production:
+        # Production mode: bind to 0.0.0.0 and don't open browser
+        host = '0.0.0.0'
+        print(f"Starting Photoisomerization Rate Calculator in production mode on port {port}")
+    else:
+        # Local development mode: bind to localhost and open browser
+        host = 'localhost'
+        threading.Timer(1.0, lambda: webbrowser.open(f'http://localhost:{port}')).start()
+        print(f"Starting Photoisomerization Rate Calculator at http://localhost:{port}")
+    
+    app.run(host=host, port=port, debug=False)
 
 
 if __name__ == '__main__':
