@@ -2,23 +2,6 @@
 
 Convert measured light power (nW) into photoisomerization rates (isomerizations/photoreceptor/s) for different photoreceptor types and stimulus devices.
 
-## Prerequisites
-
-Before starting, you'll need to have **git** installed to clone this repository.
-
-### Installing Git
-
-**macOS:**
-- Install via Homebrew: `brew install git`
-- Or download from [git-scm.com](https://git-scm.com/download/mac)
-- Or install Xcode Command Line Tools: `xcode-select --install`
-
-**Windows:**
-- Download the installer from [git-scm.com](https://git-scm.com/download/win)
-- Run the installer and follow the setup wizard
-
-To verify git is installed, run: `git --version`
-
 ## Quick start
 
 ```bash
@@ -50,9 +33,9 @@ The app has three tabs:
 | Primate | Rod / L-cone / M-cone / S-cone | 500 / 560 / 530 / 430 | 1.0 / 0.37 / 0.37 / 0.37 |
 | Fat-tailed dunnart | Rod / LWS / MWS / UVS | 512 / 535 / 509 / 363 | 0.79 / 2.0 / 2.0 / 2.0 |
 
-### Stimulus devices (14)
+### Stimulus devices (8)
 
-OLEDs (yOLED, wOLED, xOLED, color_XL_OLED), LCDs (bLCD, gLCD, rLCD, wLCD), LEDs (blue, green, red, uv), exciter, ekb-invivo-ephys.
+OLEDs (oled_white, oled_yellow, oled_color), LightCrafter 2P (lightCrafter_2p_uv, lightCrafter_2p_green, lightCrafter_2p_red), lightCrafter_invivo_all, halogen_2pOly.
 
 ## Adding and sharing spectra
 
@@ -66,6 +49,14 @@ git push
 ```
 
 Teammates pull to get the update: `git pull`.
+
+## Changing the default sampling area
+
+The default stimulus spot area (1 cm² = 100,000,000 μm²) can be changed by editing `templates/calculator.html`. Find the input element with `id="area"` and change its `value` attribute:
+
+```html
+<input type="number" id="area" step="any" min="0" value="100000000" ...>
+```
 
 ## Project structure
 
