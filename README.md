@@ -33,9 +33,9 @@ The app has three tabs:
 | Primate | Rod / L-cone / M-cone / S-cone | 500 / 560 / 530 / 430 | 1.0 / 0.37 / 0.37 / 0.37 |
 | Fat-tailed dunnart | Rod / LWS / MWS / UVS | 512 / 535 / 509 / 363 | 0.79 / 2.0 / 2.0 / 2.0 |
 
-### Stimulus devices (8)
+### Stimulus devices (9)
 
-OLEDs (oled_white, oled_yellow, oled_color), LightCrafter 2P (lightCrafter_2p_uv, lightCrafter_2p_green, lightCrafter_2p_red), lightCrafter_invivo_all, halogen_2pOly.
+OLEDs (oled_white, oled_yellow, oled_color), LightCrafter 2P (lightCrafter_2p_uv, lightCrafter_2p_green, lightCrafter_2p_red), lightCrafter_invivo_all, halogen_2pOly, led_open_field.
 
 ## Adding and sharing spectra
 
