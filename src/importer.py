@@ -44,6 +44,20 @@ def import_stimulus_spectrum(filepath, name):
     wavelengths = data[:, 0]
     values = data[:, 1]
 
+    # Merge duplicate wavelengths (can happen with low-precision scientific notation)
+    unique_wl, inverse = np.unique(wavelengths, return_inverse=True)
+    if len(unique_wl) < len(wavelengths):
+        avg_vals = np.zeros(len(unique_wl))
+        counts = np.zeros(len(unique_wl))
+        for i, idx in enumerate(inverse):
+            avg_vals[idx] += values[i]
+            counts[idx] += 1
+        values = avg_vals / counts
+        wavelengths = unique_wl
+        warnings.append(
+            f"Merged {len(data) - len(unique_wl)} duplicate wavelength entries by averaging."
+        )
+
     # Check monotonically increasing wavelengths
     if not np.all(np.diff(wavelengths) > 0):
         raise ValueError("Wavelength column must be monotonically increasing.")
