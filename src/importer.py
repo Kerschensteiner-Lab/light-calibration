@@ -70,8 +70,17 @@ def import_stimulus_spectrum(filepath, name):
             "Results may be unreliable for wavelengths outside the source range."
         )
 
-    # Baseline correction: subtract minimum so the floor is at zero
-    values = values - values.min()
+    # Baseline correction: estimate noise floor from bottom quartile,
+    # subtract noise_mean + 3*std, clamp negatives, then zero residuals
+    sorted_vals = np.sort(values)
+    n_noise = max(int(0.25 * len(sorted_vals)), 10)
+    noise_samples = sorted_vals[:n_noise]
+    baseline = noise_samples.mean() + 3 * noise_samples.std()
+    values = values - baseline
+    values = np.maximum(values, 0.0)
+    peak = values.max()
+    if peak > 0:
+        values[values < 0.01 * peak] = 0.0
 
     # Resample to standard grid
     new_wl, new_vals = resample_spectrum(wavelengths, values)
